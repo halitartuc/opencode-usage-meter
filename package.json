@@ -1,0 +1,50 @@
+{
+  "name": "opencode-usage-meter",
+  "version": "0.1.0",
+  "description": "OpenCode Go quota indicator for OpenCode Desktop: 5-hour, weekly and monthly remaining allowance plus today's usage.",
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "quota",
+    "usage",
+    "rate-limit",
+    "opencode-go"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Olcan Askar"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olcanaskar/opencode-usage-meter.git"
+  },
+  "homepage": "https://github.com/olcanaskar/opencode-usage-meter#readme",
+  "bugs": {
+    "url": "https://github.com/olcanaskar/opencode-usage-meter/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./gui-experimental": "./dist/gui-experimental.cjs"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "README.tr.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "prepare": "vite build"
+  },
+  "dependencies": {
+    "@opencode/plugin": "^2.2.1"
+  },
+  "devDependencies": {
+    "solid-js": "^1.9.0",
+    "vite": "^7.0.0",
+    "vite-plugin-solid": "^2.11.0"
+  }
+}

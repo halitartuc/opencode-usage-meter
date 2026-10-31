@@ -1,0 +1,7 @@
+node_modules/
+*.log
+.DS_Store
+.vite/
+
+# dist/ is committed on purpose: the desktop app loads dist/gui-experimental.cjs
+# directly, so a fresh clone works without a build step.

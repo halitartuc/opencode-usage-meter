@@ -5,8 +5,6 @@ header next to the context window ring and shows **how much of your OpenCode Go
 allowance is left** for the 5-hour, weekly and monthly windows. Click it for details,
 today's activity, and a link to the Console.
 
-> [Türkçe README](README.tr.md)
-
 ```
  5h 85%   7d 89%   30d 95%  ▾
 ```

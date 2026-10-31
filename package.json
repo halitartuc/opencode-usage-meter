@@ -1,6 +1,6 @@
 {
   "name": "opencode-usage-meter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "OpenCode Go quota indicator for OpenCode Desktop: 5-hour, weekly and monthly remaining allowance plus today's usage.",
   "keywords": [
     "opencode",
@@ -31,7 +31,6 @@
     "dist",
     "src",
     "README.md",
-    "README.tr.md",
     "LICENSE"
   ],
   "scripts": {

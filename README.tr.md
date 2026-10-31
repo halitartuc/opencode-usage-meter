@@ -11,9 +11,9 @@ ve günün kullanımı.
 
 | Satır | Anlamı |
 | --- | --- |
-| `5 saatlik / Haftalık / Aylık` | Her pencerenin kalan yüzdesi, çubuğu ve sıfırlanmasına kalan süre |
-| `Aylık bütçe` | Console'da tanımlı üye bütçesi (`harcanan / limit`), yalnızca varsa |
-| `Bugün` | Günün istek (model adımı) sayısı, toplam token, giriş/çıkış, cache okuması, prompt ve oturum sayısı |
+| `5-hour / Weekly / Monthly` | Her pencerenin kalan yüzdesi, çubuğu ve sıfırlanmasına kalan süre |
+| `Monthly budget` | Console'da tanımlı üye bütçesi (`spent / limit`), yalnızca varsa |
+| `Today` | Günün istek (model adımı) sayısı, toplam token, giriş/çıkış, cache okuması, prompt ve oturum sayısı |
 
 Renkler: %70 kullanımın altında yeşil, %70'ten sonra amber, %90'dan sonra kırmızı.
 
@@ -114,7 +114,7 @@ ctx.add(Slot, { at: "session.header", order: 10, render: () => <UsageMeter /> })
 - Go kotası dolar cinsinden tanımlı, ama dolar tutarı yerel veriden birebir
   üretilemiyor: peak saat tarifesi ve istek başına gerçek `opencode.allowance` değeri
   yerelde açık değil. Token × fiyat listesi tahmini denendi ve Console'dan 20–30 sent
-  saptığı için kaldırıldı. Kesin tutar için **Console'da aç ↗**.
+  saptığı için kaldırıldı. Kesin tutar için **Open Console ↗**.
 
 ## Lisans
 

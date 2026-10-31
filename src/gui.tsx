@@ -51,6 +51,10 @@ function compact(value: number) {
   return String(Math.round(value))
 }
 
+function plural(count: number, one: string, many: string) {
+  return `${compact(count)} ${count === 1 ? one : many}`
+}
+
 const tone = (used: number) => (used >= 90 ? "#ef4444" : used >= 70 ? "#f5a623" : "#3fb950")
 
 function remaining(percent: number) {
@@ -59,13 +63,13 @@ function remaining(percent: number) {
 
 function formatReset(ms: number) {
   const left = ms - Date.now()
-  if (left <= 0) return "şimdi"
+  if (left <= 0) return "now"
   const minutes = Math.floor(left / 60_000)
   const days = Math.floor(minutes / 1440)
   const hours = Math.floor((minutes % 1440) / 60)
-  if (days > 0) return `${days}g ${hours}s`
-  if (hours > 0) return `${hours}s ${minutes % 60}dk`
-  return `${Math.max(1, minutes)}dk`
+  if (days > 0) return `${days}d ${hours}h`
+  if (hours > 0) return `${hours}h ${minutes % 60}m`
+  return `${Math.max(1, minutes)}m`
 }
 
 function UsageMeter() {
@@ -116,9 +120,9 @@ function UsageMeter() {
     const go = limits()?.go
     if (!go) return []
     return [
-      { key: "5h", label: "5 saatlik", meter: go.rolling },
-      { key: "7d", label: "Haftalık", meter: go.weekly },
-      { key: "30d", label: "Aylık", meter: go.monthly },
+      { key: "5h", label: "5-hour", meter: go.rolling },
+      { key: "7d", label: "Weekly", meter: go.weekly },
+      { key: "30d", label: "Monthly", meter: go.monthly },
     ]
   })
 
@@ -158,7 +162,7 @@ function UsageMeter() {
         <button
           type="button"
           onClick={toggle}
-          title="OpenCode Go kotası"
+          title="OpenCode Go quota"
           style={{
             display: "flex",
             "align-items": "center",
@@ -214,7 +218,7 @@ function UsageMeter() {
                   <div style={{ display: "flex", "justify-content": "space-between", "margin-bottom": "3px" }}>
                     <span style={{ opacity: 0.75 }}>{row.label}</span>
                     <span>
-                      <span style={{ color: tone(row.meter.percent), "font-weight": 600 }}>{remaining(row.meter.percent)}% kaldı</span>
+                      <span style={{ color: tone(row.meter.percent), "font-weight": 600 }}>{remaining(row.meter.percent)}% left</span>
                       <span style={{ opacity: 0.45 }}> · {formatReset(row.meter.resetsAt)}</span>
                     </span>
                   </div>
@@ -236,7 +240,7 @@ function UsageMeter() {
               {(budget) => (
                 <div style={{ "margin-bottom": "8px" }}>
                   <div style={{ display: "flex", "justify-content": "space-between" }}>
-                    <span style={{ opacity: 0.75 }}>Aylık bütçe</span>
+                    <span style={{ opacity: 0.75 }}>Monthly budget</span>
                     <span>
                       ${budget.spent.toFixed(2)} / ${budget.limit.toFixed(2)}
                     </span>
@@ -264,17 +268,17 @@ function UsageMeter() {
                 }}
               >
                 <div style={{ display: "flex", "justify-content": "space-between", "margin-bottom": "3px" }}>
-                  <span style={{ opacity: 0.75 }}>Bugün</span>
+                  <span style={{ opacity: 0.75 }}>Today</span>
                   <span>
                     <span style={{ "font-weight": 600 }}>{compact(today()!.steps)}</span>
-                    <span style={{ opacity: 0.45 }}> istek · </span>
+                    <span style={{ opacity: 0.45 }}> requests · </span>
                     <span
-                      title="giriş + çıkış + reasoning + önbellek okuması"
+                      title="input + output + reasoning + cache read"
                       style={{ "font-weight": 600, cursor: "help" }}
                     >
                       {compact(todayTotals()!.total)}
                     </span>
-                    <span style={{ opacity: 0.45 }}> token</span>
+                    <span style={{ opacity: 0.45 }}> tokens</span>
                   </span>
                 </div>
                 <div
@@ -286,7 +290,7 @@ function UsageMeter() {
                   }}
                 >
                   <span>
-                    giriş {compact(todayTotals()!.input)} · çıkış {compact(todayTotals()!.output)}
+                    in {compact(todayTotals()!.input)} · out {compact(todayTotals()!.output)}
                   </span>
                   <span>cache {compact(todayTotals()!.cache.read)}</span>
                 </div>
@@ -300,7 +304,7 @@ function UsageMeter() {
                   }}
                 >
                   <span>
-                    {compact(today()!.prompts)} prompt · {compact(today()!.sessions)} oturum
+                    {plural(today()!.prompts, "prompt", "prompts")} · {plural(today()!.sessions, "session", "sessions")}
                   </span>
                 </div>
               </div>
@@ -315,14 +319,14 @@ function UsageMeter() {
                 }}
                 style={{ background: "none", border: "none", color: "inherit", opacity: 0.6, cursor: "pointer", padding: 0, "font-size": "10px" }}
               >
-                yenile
+                refresh
               </button>
               <button
                 type="button"
                 onClick={() => ctx.system.openExternal(limits()!.workspace.usageURL)}
                 style={{ background: "none", border: "none", color: "inherit", opacity: 0.75, cursor: "pointer", padding: 0, "font-size": "10px" }}
               >
-                Console'da aç ↗
+                Open Console ↗
               </button>
             </div>
           </div>
@@ -340,7 +344,7 @@ function UsageMeter() {
             "font-variant-numeric": "tabular-nums",
           }}
         >
-          kota ?
+          quota ?
         </span>
       </Show>
     </>

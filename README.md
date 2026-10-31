@@ -15,9 +15,9 @@ today's activity, and a link to the Console.
 
 | Line | Meaning |
 | --- | --- |
-| `5 saatlik / Haftalık / Aylık` | Remaining percentage of each Go allowance window, with a bar and the time until it resets |
-| `Aylık bütçe` | Any Console member budget (`spent / limit`), only when one exists |
-| `Bugün` | Today's requests (model steps), total tokens, input/output and cache reads, prompts and sessions |
+| `5-hour / Weekly / Monthly` | Remaining percentage of each Go allowance window, with a bar and the time until it resets |
+| `Monthly budget` | Any Console member budget (`spent / limit`), only when one exists |
+| `Today` | Today's requests (model steps), total tokens, input/output and cache reads, prompts and sessions |
 
 Values are colour coded: green under 70% used, amber from 70%, red from 90%.
 
@@ -119,9 +119,9 @@ ctx.add(Slot, { at: "session.header", order: 10, render: () => <UsageMeter /> })
 - The Go allowance is dollar-denominated, but a dollar estimate cannot be reproduced
   from local data alone: peak-hours pricing and the real `opencode.allowance` value per
   request are not exposed locally. A token × price-list estimate was tried and removed
-  because it drifted from the Console by 20–30 cents. Use **Console'da aç ↗** for the
+  because it drifted from the Console by 20–30 cents. Use **Open Console ↗** for the
   exact figure.
-- Interface strings are Turkish.
+- Interface strings are English.
 
 ## License
 

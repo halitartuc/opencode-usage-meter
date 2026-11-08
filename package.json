@@ -34,7 +34,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "vite build",
+    "compile": "vite build",
     "watch": "vite build --watch"
   },
   "dependencies": {

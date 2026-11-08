@@ -1,5 +1,6 @@
 import { Plugin, Slot, usePlugin } from "@opencode/plugin/gui"
 import { createMemo, createSignal, For, onCleanup, Show } from "solid-js"
+import { i18n, type Translate } from "./i18n"
 
 /**
  * Quota meter for the OpenCode Go plan.
@@ -37,7 +38,7 @@ type Today = {
   tokens: Tokens
 }
 
-type Row = { key: string; label: string; meter: Meter }
+type Row = { key: string; i18nKey: string; meter: Meter }
 
 const POLL_MS = 60_000
 
@@ -51,25 +52,21 @@ function compact(value: number) {
   return String(Math.round(value))
 }
 
-function plural(count: number, one: string, many: string) {
-  return `${compact(count)} ${count === 1 ? one : many}`
-}
-
 const tone = (used: number) => (used >= 90 ? "#ef4444" : used >= 70 ? "#f5a623" : "#3fb950")
 
 function remaining(percent: number) {
   return Math.max(0, Math.min(100, Math.round(100 - percent)))
 }
 
-function formatReset(ms: number) {
+function formatReset(ms: number, t: Translate) {
   const left = ms - Date.now()
-  if (left <= 0) return "now"
+  if (left <= 0) return t("reset.now")
   const minutes = Math.floor(left / 60_000)
   const days = Math.floor(minutes / 1440)
   const hours = Math.floor((minutes % 1440) / 60)
-  if (days > 0) return `${days}d ${hours}h`
-  if (hours > 0) return `${hours}h ${minutes % 60}m`
-  return `${Math.max(1, minutes)}m`
+  if (days > 0) return t("reset.dh", { days, hours })
+  if (hours > 0) return t("reset.hm", { hours, minutes: minutes % 60 })
+  return t("reset.m", { minutes: Math.max(1, minutes) })
 }
 
 function UsageMeter() {
@@ -121,9 +118,9 @@ function UsageMeter() {
     const go = limits()?.go
     if (!go) return []
     return [
-      { key: "5h", label: "5-hour", meter: go.rolling },
-      { key: "7d", label: "Weekly", meter: go.weekly },
-      { key: "30d", label: "Monthly", meter: go.monthly },
+      { key: "5h", i18nKey: "row.rolling", meter: go.rolling },
+      { key: "7d", i18nKey: "row.weekly", meter: go.weekly },
+      { key: "30d", i18nKey: "row.monthly", meter: go.monthly },
     ]
   })
 
@@ -167,7 +164,7 @@ function UsageMeter() {
         <button
           type="button"
           onClick={toggle}
-          title={rows().length > 0 ? "OpenCode Go quota" : "OpenCode usage (free plan)"}
+          title={ctx.t(rows().length > 0 ? "chip.title.go" : "chip.title.free")}
           style={{
             display: "flex",
             "align-items": "center",
@@ -194,12 +191,11 @@ function UsageMeter() {
           <Show when={freeMode()}>
             <Show
               when={todayTotals()}
-              fallback={<span style={{ opacity: 0.8 }}>Free plan</span>}
+              fallback={<span style={{ opacity: 0.8 }}>{ctx.t("chip.free.fallback")}</span>}
             >
-              <span style={{ opacity: 0.55 }}>Free</span>
-              <span style={{ "font-weight": 600 }}>· {compact(today()!.steps)} req</span>
-              <span style={{ opacity: 0.55 }}>·</span>
-              <span style={{ "font-weight": 600 }}>{compact(todayTotals()!.total)} tok</span>
+              <span style={{ "font-weight": 600 }}>
+                {ctx.t("chip.free.usage", { steps: compact(today()!.steps), total: compact(todayTotals()!.total) })}
+              </span>
             </Show>
           </Show>
           <span style={{ opacity: 0.4, "font-size": "9px" }}>{open() ? "▲" : "▼"}</span>
@@ -224,14 +220,13 @@ function UsageMeter() {
             }}
           >
             <div style={{ display: "flex", "justify-content": "space-between", "margin-bottom": "8px" }}>
-              <span style={{ "font-weight": 600 }}>{rows().length > 0 ? "OpenCode Go" : "Free plan"}</span>
+              <span style={{ "font-weight": 600 }}>{rows().length > 0 ? ctx.t("header.go") : ctx.t("header.free")}</span>
               <span style={{ opacity: 0.55 }}>{limits()?.workspace.name ?? "Personal"}</span>
             </div>
 
             <Show when={freeMode()}>
               <div style={{ opacity: 0.55, "margin-bottom": "8px", "font-size": "10px" }}>
-                OpenCode doesn't report remaining free quota — when it's exhausted, requests
-                fail with a reset time. Today's local usage is below.
+                {ctx.t("note.free")}
               </div>
             </Show>
 
@@ -239,10 +234,10 @@ function UsageMeter() {
               {(row) => (
                 <div style={{ "margin-bottom": "8px" }}>
                   <div style={{ display: "flex", "justify-content": "space-between", "margin-bottom": "3px" }}>
-                    <span style={{ opacity: 0.75 }}>{row.label}</span>
+                    <span style={{ opacity: 0.75 }}>{ctx.t(row.i18nKey)}</span>
                     <span>
-                      <span style={{ color: tone(row.meter.percent), "font-weight": 600 }}>{remaining(row.meter.percent)}% left</span>
-                      <span style={{ opacity: 0.45 }}> · {formatReset(row.meter.resetsAt)}</span>
+                      <span style={{ color: tone(row.meter.percent), "font-weight": 600 }}>{ctx.t("row.left", { percent: remaining(row.meter.percent) })}</span>
+                      <span style={{ opacity: 0.45 }}> · {formatReset(row.meter.resetsAt, ctx.t)}</span>
                     </span>
                   </div>
                   <div style={{ height: "4px", "border-radius": "999px", background: "rgba(127,127,127,0.22)" }}>
@@ -263,7 +258,7 @@ function UsageMeter() {
               {(budget) => (
                 <div style={{ "margin-bottom": "8px" }}>
                   <div style={{ display: "flex", "justify-content": "space-between" }}>
-                    <span style={{ opacity: 0.75 }}>Monthly budget</span>
+                    <span style={{ opacity: 0.75 }}>{ctx.t("budget.monthly")}</span>
                     <span>
                       ${budget.spent.toFixed(2)} / ${budget.limit.toFixed(2)}
                     </span>
@@ -291,17 +286,17 @@ function UsageMeter() {
                 }}
               >
                 <div style={{ display: "flex", "justify-content": "space-between", "margin-bottom": "3px" }}>
-                  <span style={{ opacity: 0.75 }}>Today</span>
+                  <span style={{ opacity: 0.75 }}>{ctx.t("today.title")}</span>
                   <span>
                     <span style={{ "font-weight": 600 }}>{compact(today()!.steps)}</span>
-                    <span style={{ opacity: 0.45 }}> requests · </span>
+                    <span style={{ opacity: 0.45 }}> {ctx.t("today.reqUnit")} · </span>
                     <span
                       title="input + output + reasoning + cache read"
                       style={{ "font-weight": 600, cursor: "help" }}
                     >
                       {compact(todayTotals()!.total)}
                     </span>
-                    <span style={{ opacity: 0.45 }}> tokens</span>
+                    <span style={{ opacity: 0.45 }}> {ctx.t("today.tokUnit")}</span>
                   </span>
                 </div>
                 <div
@@ -313,9 +308,9 @@ function UsageMeter() {
                   }}
                 >
                   <span>
-                    in {compact(todayTotals()!.input)} · out {compact(todayTotals()!.output)}
+                    {ctx.t("today.in")} {compact(todayTotals()!.input)} · {ctx.t("today.out")} {compact(todayTotals()!.output)}
                   </span>
-                  <span>cache {compact(todayTotals()!.cache.read)}</span>
+                  <span>{ctx.t("today.cache")} {compact(todayTotals()!.cache.read)}</span>
                 </div>
                 <div
                   style={{
@@ -327,7 +322,7 @@ function UsageMeter() {
                   }}
                 >
                   <span>
-                    {plural(today()!.prompts, "prompt", "prompts")} · {plural(today()!.sessions, "session", "sessions")}
+                    {ctx.plural("today.prompts", today()!.prompts)} · {ctx.plural("today.sessions", today()!.sessions)}
                   </span>
                 </div>
               </div>
@@ -342,14 +337,14 @@ function UsageMeter() {
                 }}
                 style={{ background: "none", border: "none", color: "inherit", opacity: 0.6, cursor: "pointer", padding: 0, "font-size": "10px" }}
               >
-                refresh
+                {ctx.t("footer.refresh")}
               </button>
               <button
                 type="button"
                 onClick={() => ctx.system.openExternal(limits()!.workspace.usageURL)}
                 style={{ background: "none", border: "none", color: "inherit", opacity: 0.75, cursor: "pointer", padding: 0, "font-size": "10px" }}
               >
-                Open Console ↗
+                {ctx.t("footer.console")}
               </button>
             </div>
           </div>
@@ -367,7 +362,7 @@ function UsageMeter() {
             "font-variant-numeric": "tabular-nums",
           }}
         >
-          quota ?
+          {ctx.t("error.chip")}
         </span>
       </Show>
     </>
@@ -375,6 +370,7 @@ function UsageMeter() {
 }
 
 export default Plugin.define({
+  i18n,
   setup(ctx) {
     ctx.add(Slot, {
       at: "session.header",

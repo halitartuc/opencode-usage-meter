@@ -38,7 +38,7 @@ type Today = {
   tokens: Tokens
 }
 
-type Row = { key: string; i18nKey: string; meter: Meter }
+type Row = { key: string; chipI18nKey: string; i18nKey: string; meter: Meter }
 
 const POLL_MS = 60_000
 
@@ -118,9 +118,9 @@ function UsageMeter() {
     const go = limits()?.go
     if (!go) return []
     return [
-      { key: "5h", i18nKey: "row.rolling", meter: go.rolling },
-      { key: "7d", i18nKey: "row.weekly", meter: go.weekly },
-      { key: "30d", i18nKey: "row.monthly", meter: go.monthly },
+      { key: "5h", chipI18nKey: "chip.row.5h", i18nKey: "row.rolling", meter: go.rolling },
+      { key: "7d", chipI18nKey: "chip.row.7d", i18nKey: "row.weekly", meter: go.weekly },
+      { key: "30d", chipI18nKey: "chip.row.30d", i18nKey: "row.monthly", meter: go.monthly },
     ]
   })
 
@@ -183,7 +183,7 @@ function UsageMeter() {
           <For each={rows()}>
             {(row) => (
               <span style={{ display: "flex", "align-items": "center", gap: "4px" }}>
-                <span style={{ opacity: 0.55 }}>{row.key}</span>
+                <span style={{ opacity: 0.55 }}>{ctx.t(row.chipI18nKey)}</span>
                 <span style={{ "font-weight": 600, color: tone(row.meter.percent) }}>{remaining(row.meter.percent)}%</span>
               </span>
             )}

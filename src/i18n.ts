@@ -7,6 +7,9 @@ export const i18n = {
     "chip.free.usage": "Free · {{steps}} req · {{total}} tok",
     "chip.title.go": "OpenCode Go quota",
     "chip.title.free": "OpenCode usage (free plan)",
+    "chip.row.5h": "5h",
+    "chip.row.7d": "7d",
+    "chip.row.30d": "30d",
     "header.go": "OpenCode Go",
     "header.free": "Free plan",
     "note.free":
@@ -39,6 +42,9 @@ export const i18n = {
     "chip.free.usage": "Ücretsiz · {{steps}} istek · {{total}} tok",
     "chip.title.go": "OpenCode Go kotası",
     "chip.title.free": "OpenCode kullanımı (ücretsiz plan)",
+    "chip.row.5h": "5sa",
+    "chip.row.7d": "7g",
+    "chip.row.30d": "30g",
     "header.go": "OpenCode Go",
     "header.free": "Ücretsiz plan",
     "note.free":

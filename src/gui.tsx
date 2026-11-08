@@ -110,9 +110,10 @@ function UsageMeter() {
   }
 
   void load()
+  void loadToday()
   const timer = setInterval(() => {
     void load()
-    if (open()) void loadToday()
+    void loadToday()
   }, POLL_MS)
   onCleanup(() => clearInterval(timer))
 
@@ -125,6 +126,10 @@ function UsageMeter() {
       { key: "30d", label: "Monthly", meter: go.monthly },
     ]
   })
+
+  // Free profiles have no Go windows at all; the chip then shows honest
+  // local usage (requests + tokens) instead of a fake quota percentage.
+  const freeMode = createMemo(() => limits() != null && rows().length === 0)
 
   const todayTotals = createMemo(() => {
     const stats = today()
@@ -157,12 +162,12 @@ function UsageMeter() {
 
   return (
     <>
-      <Show when={rows().length > 0}>
+      <Show when={rows().length > 0 || freeMode()}>
       <div ref={(element) => (wrapper = element)} style={{ position: "relative", display: "flex", "align-items": "center" }}>
         <button
           type="button"
           onClick={toggle}
-          title="OpenCode Go quota"
+          title={rows().length > 0 ? "OpenCode Go quota" : "OpenCode usage (free plan)"}
           style={{
             display: "flex",
             "align-items": "center",
@@ -186,6 +191,17 @@ function UsageMeter() {
               </span>
             )}
           </For>
+          <Show when={freeMode()}>
+            <Show
+              when={todayTotals()}
+              fallback={<span style={{ opacity: 0.8 }}>Free plan</span>}
+            >
+              <span style={{ opacity: 0.55 }}>Free</span>
+              <span style={{ "font-weight": 600 }}>· {compact(today()!.steps)} req</span>
+              <span style={{ opacity: 0.55 }}>·</span>
+              <span style={{ "font-weight": 600 }}>{compact(todayTotals()!.total)} tok</span>
+            </Show>
+          </Show>
           <span style={{ opacity: 0.4, "font-size": "9px" }}>{open() ? "▲" : "▼"}</span>
         </button>
 
@@ -208,9 +224,16 @@ function UsageMeter() {
             }}
           >
             <div style={{ display: "flex", "justify-content": "space-between", "margin-bottom": "8px" }}>
-              <span style={{ "font-weight": 600 }}>OpenCode Go</span>
+              <span style={{ "font-weight": 600 }}>{rows().length > 0 ? "OpenCode Go" : "Free plan"}</span>
               <span style={{ opacity: 0.55 }}>{limits()?.workspace.name ?? "Personal"}</span>
             </div>
+
+            <Show when={freeMode()}>
+              <div style={{ opacity: 0.55, "margin-bottom": "8px", "font-size": "10px" }}>
+                OpenCode doesn't report remaining free quota — when it's exhausted, requests
+                fail with a reset time. Today's local usage is below.
+              </div>
+            </Show>
 
             <For each={rows()}>
               {(row) => (
